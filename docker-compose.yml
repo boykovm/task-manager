@@ -1,0 +1,65 @@
+version: '3.8'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: taskmanager_api
+    ports:
+      - "${PORT}:${PORT}"
+    command: npm run start:dev
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - PORT=${PORT}
+      - DB_HOST=mysql_db
+      - DB_PORT=3306
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - REDIS_HOST=redis_cache
+      - REDIS_PORT=6379
+    depends_on:
+      - mysql_db
+      - redis_cache
+    networks:
+      - taskmanager_net
+
+  mysql_db:
+    image: mysql:8.0
+    container_name: taskmanager_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: taskmanager
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - taskmanager_net
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+  redis_cache:
+    image: redis:alpine
+    container_name: taskmanager_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - taskmanager_net
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  taskmanager_net:
+    driver: bridge
