@@ -8,7 +8,7 @@ General tasks:
 - [X] Create a .env.example
 - [X] Create a .nvmrc
 - [X] Add safe env package
-- [ ] Add configuration
+- [X] Add configuration
 - [ ] Add prisma
 - [ ] Set up the database
 
